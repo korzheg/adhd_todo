@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: pulseboard-backend
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run server
+    healthCheckPath: /healthz
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4.1-mini
+      - key: OPENAI_REALTIME_MODEL
+        value: gpt-4o-realtime-preview
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
