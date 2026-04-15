@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Dashboard } from './components/Dashboard'
+import { FirstRunSetup } from './components/FirstRunSetup'
 import { RealtimeVoicePanel } from './components/RealtimeVoicePanel'
 import { ReminderPanel } from './components/ReminderPanel'
 import { SettingsPanel } from './components/SettingsPanel'
@@ -18,7 +19,7 @@ import './App.css'
 type View = 'tasks' | 'dashboard' | 'settings'
 
 function App() {
-  const [{ todos, settings }, setState] = useState(loadState)
+  const [{ todos, settings, onboardingCompleted }, setState] = useState(loadState)
   const [preview, setPreview] = useState<DraftAnalysis | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [isApplyingAssistant, setIsApplyingAssistant] = useState(false)
@@ -31,8 +32,8 @@ function App() {
   const lastRemoteUpdatedAtRef = useRef('')
 
   useEffect(() => {
-    saveState({ todos, settings })
-  }, [settings, todos])
+    saveState({ todos, settings, onboardingCompleted })
+  }, [onboardingCompleted, settings, todos])
 
   useEffect(() => {
     latestTodosRef.current = todos
@@ -58,6 +59,17 @@ function App() {
 
   function updateSettings(nextSettings: AppSettings) {
     setState((current) => ({ ...current, settings: nextSettings }))
+  }
+
+  function handleCompleteOnboarding(apiKey: string) {
+    setState((current) => ({
+      ...current,
+      onboardingCompleted: true,
+      settings: {
+        ...current.settings,
+        apiKey,
+      },
+    }))
   }
 
   async function handleSubmit(rawText: string) {
@@ -383,6 +395,14 @@ function App() {
     } finally {
       setIsApplyingAssistant(false)
     }
+  }
+
+  if (!onboardingCompleted) {
+    return (
+      <div className={`app theme-${settings.theme} ${settings.reduceMotion ? 'reduced-motion' : ''}`}>
+        <FirstRunSetup initialValue={settings.apiKey} onSubmit={handleCompleteOnboarding} />
+      </div>
+    )
   }
 
   return (

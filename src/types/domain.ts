@@ -94,6 +94,7 @@ export interface AppSettings {
 export interface StoredState {
   todos: TodoItem[]
   settings: AppSettings
+  onboardingCompleted: boolean
 }
 
 export const LIFE_AREAS: LifeAreaDefinition[] = [

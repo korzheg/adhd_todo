@@ -119,6 +119,88 @@
   padding: 18px;
 }
 
+/* ── First-run setup ── */
+.first-run-shell {
+  flex: 1;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
+  display: grid;
+  place-items: center;
+  padding: 24px 0;
+}
+
+.first-run-card {
+  width: min(100%, 560px);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top right, rgba(46, 204, 113, 0.12), transparent 30%),
+    var(--surface);
+  padding: 28px;
+  box-shadow: 0 24px 80px rgba(10, 14, 26, 0.12);
+}
+
+.first-run-eyebrow {
+  margin-bottom: 8px;
+  color: var(--green);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.first-run-copy,
+.first-run-hint {
+  color: var(--text-muted);
+}
+
+.first-run-copy {
+  margin-top: 10px;
+}
+
+.first-run-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.first-run-input {
+  flex: 1;
+  min-width: 0;
+  border: 2px solid var(--border-strong);
+  border-radius: 16px;
+  background: var(--surface-raised);
+  color: var(--text-strong);
+  padding: 16px 18px;
+  outline: none;
+}
+
+.first-run-input:focus {
+  border-color: rgba(46, 204, 113, 0.4);
+  box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.08);
+}
+
+.first-run-button {
+  border: none;
+  border-radius: 16px;
+  padding: 0 22px;
+  background: linear-gradient(135deg, #2ecc71, #1a9a52);
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.first-run-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.first-run-hint {
+  margin-top: 12px;
+  font-size: 0.84rem;
+}
+
 /* ── BIG CAPTURE INPUT ── */
 .capture-section {
   padding: 0;
@@ -146,6 +228,19 @@
 }
 /* Prevent iOS Safari from auto-zooming on focus (font-size must stay ≥16px) */
 @media (max-width: 640px) {
+  .first-run-card {
+    padding: 22px 18px;
+    border-radius: 22px;
+  }
+
+  .first-run-form {
+    flex-direction: column;
+  }
+
+  .first-run-button {
+    min-height: 52px;
+  }
+
   .capture-input { font-size: 1rem; }
 }
 .capture-btn {

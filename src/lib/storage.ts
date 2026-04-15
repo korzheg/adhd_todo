@@ -9,6 +9,7 @@ export function loadState(): StoredState {
       return {
         todos: [],
         settings: DEFAULT_SETTINGS,
+        onboardingCompleted: false,
       }
     }
 
@@ -19,11 +20,13 @@ export function loadState(): StoredState {
         ...DEFAULT_SETTINGS,
         ...parsed.settings,
       },
+      onboardingCompleted: parsed.onboardingCompleted ?? Boolean(parsed.settings),
     }
   } catch {
     return {
       todos: [],
       settings: DEFAULT_SETTINGS,
+      onboardingCompleted: false,
     }
   }
 }
