@@ -8,7 +8,48 @@ interface ChatResponse {
 }
 
 async function requestJson(settings: AppSettings, systemPrompt: string, userPrompt: string): Promise<unknown | null> {
-  if (!settings.llmEnabled || !settings.apiKey.trim()) {
+  if (!settings.llmEnabled) {
+    return null
+  }
+
+  const base = settings.backendUrl.replace(/\/$/, '')
+
+  if (base) {
+    try {
+      let route = ''
+      let body: Record<string, unknown> = { model: settings.model }
+
+      if (systemPrompt.startsWith('You classify short todo items')) {
+        route = '/llm/analyze'
+        body = { ...body, rawText: userPrompt }
+      } else if (systemPrompt.startsWith('Create realistic ADHD-friendly todo data')) {
+        route = '/llm/demo'
+      } else if (systemPrompt.startsWith('You are a todo adjustment assistant')) {
+        route = '/llm/adjust'
+        const [todoBlock, instructionBlock] = userPrompt.split('\n\nUser request:\n')
+        body = {
+          ...body,
+          todo: todoBlock ? JSON.parse(todoBlock.replace('Current todo:\n', '')) : null,
+          instruction: instructionBlock ?? '',
+        }
+      }
+
+      if (route) {
+        const response = await fetch(`${base}${route}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        })
+        if (response.ok) {
+          return await response.json()
+        }
+      }
+    } catch {
+      // Fall through to direct client call if configured.
+    }
+  }
+
+  if (!settings.apiKey.trim()) {
     return null
   }
 

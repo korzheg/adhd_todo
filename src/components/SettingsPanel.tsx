@@ -21,7 +21,7 @@ export function SettingsPanel({ settings, onChange, syncStatus, syncBusy, onPull
     <section className="settings-view">
       <div className="settings-section">
         <h2>LLM Connection</h2>
-        <p className="settings-note">API key stays in local browser storage. Disable LLM and fallback rules still work.</p>
+        <p className="settings-note">API key stays in local browser storage, but it is optional if Backend API URL points to your deployed backend with OPENAI_API_KEY in env.</p>
         <div className="settings-grid">
           <label>
             <span>API endpoint</span>

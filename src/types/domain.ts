@@ -172,10 +172,10 @@ export const LIFE_AREAS: LifeAreaDefinition[] = [
 export const DEFAULT_SETTINGS: AppSettings = {
   apiKey: '',
   endpoint: 'https://api.openai.com/v1/chat/completions',
-  backendUrl: '/api',
+  backendUrl: 'https://pulseboard-backend-yk8z.onrender.com/api',
   model: 'gpt-4.1-mini',
-  llmEnabled: false,
-  theme: 'dark',
+  llmEnabled: true,
+  theme: 'light',
   syncEnabled: false,
   syncKey: '',
   reduceMotion: false,

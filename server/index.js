@@ -80,6 +80,92 @@ app.post('/api/realtime/session', async (req, res) => {
   }
 })
 
+async function openAiJsonCompletion(systemPrompt, userPrompt, model = OPENAI_MODEL) {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model,
+      temperature: 0.35,
+      response_format: { type: 'json_object' },
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+    }),
+  })
+
+  const payload = await response.json()
+  if (!response.ok) {
+    throw new Error(typeof payload?.error?.message === 'string' ? payload.error.message : 'OpenAI request failed')
+  }
+
+  const content = payload?.choices?.[0]?.message?.content
+  if (!content) {
+    throw new Error('No JSON content returned from OpenAI')
+  }
+
+  return JSON.parse(content)
+}
+
+app.post('/api/llm/analyze', async (req, res) => {
+  try {
+    const rawText = String(req.body?.rawText || '').trim()
+    if (!rawText) {
+      res.status(400).json({ error: 'Missing rawText' })
+      return
+    }
+
+    const result = await openAiJsonCompletion(
+      'You classify short todo items for an ADHD-friendly dashboard. Return valid JSON only with keys: title, category, deadline, urgency, effort, stress, nextStep, subtasks, confidence. Categories: finances, education, food, activity, home, admin, socialRest. deadline must be YYYY-MM-DD or null. urgency/effort/stress are integers 1-5.',
+      rawText,
+      typeof req.body?.model === 'string' && req.body.model.trim() ? req.body.model.trim() : OPENAI_MODEL,
+    )
+
+    res.json(result)
+  } catch (error) {
+    res.status(500).json({ error: 'Analyze failed', detail: String(error) })
+  }
+})
+
+app.post('/api/llm/demo', async (req, res) => {
+  try {
+    const result = await openAiJsonCompletion(
+      'Create realistic ADHD-friendly todo data across different life areas. Return JSON object with key todos as an array of 8 todos. For each todo include: rawText, title, category, deadline, urgency, effort, stress, nextStep, subtasks, confidence, status. Categories: finances, education, food, activity, home, admin, socialRest. status is open or done. deadline must be YYYY-MM-DD or null.',
+      'Generate a balanced set with mixed urgency and at least one item for each major life domain.',
+      typeof req.body?.model === 'string' && req.body.model.trim() ? req.body.model.trim() : OPENAI_MODEL,
+    )
+
+    res.json(result)
+  } catch (error) {
+    res.status(500).json({ error: 'Demo generation failed', detail: String(error) })
+  }
+})
+
+app.post('/api/llm/adjust', async (req, res) => {
+  try {
+    const todo = req.body?.todo
+    const instruction = String(req.body?.instruction || '').trim()
+    if (!todo || !instruction) {
+      res.status(400).json({ error: 'Missing todo or instruction' })
+      return
+    }
+
+    const result = await openAiJsonCompletion(
+      'You are a todo adjustment assistant. Return JSON with only keys you want to update from: title, deadline, category, urgency, effort, stress, nextStep, subtasks, status. category must be one of finances, education, food, activity, home, admin, socialRest. deadline must be YYYY-MM-DD or null. urgency/effort/stress integers 1-5. status open or done.',
+      `Current todo:\n${JSON.stringify(todo)}\n\nUser request:\n${instruction}`,
+      typeof req.body?.model === 'string' && req.body.model.trim() ? req.body.model.trim() : OPENAI_MODEL,
+    )
+
+    res.json(result)
+  } catch (error) {
+    res.status(500).json({ error: 'Todo adjust failed', detail: String(error) })
+  }
+})
+
 app.get('/api/state/load', async (req, res) => {
   try {
     const syncKey = String(req.query.key || '').trim()
